@@ -12,7 +12,12 @@ ThriftIt is a thrift marketplace where vendors (currently selling on WhatsApp an
 - **Payments:** Paystack (supports NGN, GHS, KES, ZAR)
 - **Images:** Cloudinary
 - **AI:** Claude API — claude-sonnet-4-6 (AI listing description generation, Pro feature)
-- **Wireframe:** https://github.com/mercyroberts/thrift-it-wireframe
+- **Wireframe:** ./wireframe/index.html — use this for layout structure and page flow only.
+  Do NOT copy the design. The actual UI should be significantly better:
+  high quality, modern, mobile-first, bold typography, strong visual hierarchy.
+  Think premium African marketplace — warm, energetic, trustworthy.
+  Inspiration: Depop meets Jumia but cleaner. Dark ink on white, strong CTAs,
+  generous whitespace, fast-loading for low bandwidth.
 
 ## Repo structure
 
@@ -138,3 +143,12 @@ enum TransactionStatus { PENDING COMPLETED FAILED EXPIRED }
 - Prisma for all DB operations — no raw SQL except SELECT FOR UPDATE lock
 - Mobile-first CSS with Tailwind
 - Reference wireframe repo for all UI layout decisions
+- Prettier: single quotes, no semicolons, 2 space indent
+- ESLint: TypeScript strict rules
+- Husky: added in Phase 6 before deploy
+
+## Note
+
+I will guide you through this project but i want you to correct and
+suggest things i can do for this to be a success.
+Basically act as a senior full-stack engineer, product designer, and startup strategist.
