@@ -1,4 +1,4 @@
-# ThriftIt — Claude Code Context
+# ThriftIt —— Claude Code Context
 
 ## What this is
 
@@ -130,7 +130,7 @@ enum TransactionStatus { PENDING COMPLETED FAILED EXPIRED }
 ## Monetisation
 
 - Free tier: 10 items, basic storefront
-- Pro tier: 5000-10000 NGN/month — unlimited items, AI listing tools, analytics
+- Pro tier: 10000 - 15000 NGN/month — unlimited items, AI listing tools, analytics
 - Transaction fee: 0% at launch, introduce 1.5% once adoption is established
 - Ads we need to decide on a ad tool to integrate
 - AI features are Pro only — check vendor plan before calling Claude API
@@ -146,6 +146,21 @@ enum TransactionStatus { PENDING COMPLETED FAILED EXPIRED }
 - Prettier: single quotes, no semicolons, 2 space indent
 - ESLint: TypeScript strict rules
 - Husky: added in Phase 6 before deploy
+- Testing: Jest unit tests required for locking logic in Phase 3
+- All other tests deferred until Phase 6
+
+## Rules
+
+## Security rules — non-negotiable
+
+- NEVER commit .env files under any circumstances
+- NEVER hardcode API keys, secrets, or passwords in any file
+- NEVER push to main directly
+- Always check .gitignore includes .env before committing
+- If a secret is accidentally committed, treat it as compromised immediately —
+  rotate the key and remove from git history
+- Each phase has its own branch: phase-N/description
+- Commit after each working feature within a phase after asking
 
 ## Note
 
