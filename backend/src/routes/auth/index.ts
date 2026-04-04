@@ -3,28 +3,17 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { z } from 'zod'
 import prisma from '../../lib/prisma'
-
-const VALID_COUNTRIES = [
-  'Nigeria',
-  'Ghana',
-  'Kenya',
-  'South Africa',
-  'Ireland',
-] as const
-const CURRENCY_MAP: Record<string, string> = {
-  Nigeria: 'NGN',
-  Ghana: 'GHS',
-  Kenya: 'KES',
-  'South Africa': 'ZAR',
-  Ireland: 'EUR',
-}
+import {
+  VALID_COUNTRY_NAMES,
+  getCurrencyForCountry,
+} from '../../config/countries'
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   name: z.string().min(1, 'Name is required'),
-  country: z.enum(VALID_COUNTRIES, {
-    error: `Country must be one of: ${VALID_COUNTRIES.join(', ')}`,
+  country: z.enum(VALID_COUNTRY_NAMES, {
+    error: `Country must be one of: ${VALID_COUNTRY_NAMES.join(', ')}`,
   }),
 })
 
@@ -47,7 +36,7 @@ authRouter.post('/register', async (req: Request, res: Response) => {
   }
 
   const { email, password, name, country } = result.data
-  const currency = CURRENCY_MAP[country]
+  const currency = getCurrencyForCountry(country)
 
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) {
