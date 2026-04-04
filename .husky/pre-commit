@@ -1,0 +1,10 @@
+cd backend
+
+echo "Type checking..."
+npx tsc --noEmit
+
+echo "Linting..."
+npm run lint
+
+echo "Checking format..."
+npm run format:check
