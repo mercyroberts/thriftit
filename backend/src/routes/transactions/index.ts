@@ -17,8 +17,21 @@ transactionRouter.get(
         status: true,
         buyerEmail: true,
         buyerName: true,
+        buyerPhone: true,
         createdAt: true,
         updatedAt: true,
+        deliveryDetails: {
+          select: {
+            recipientName: true,
+            phone: true,
+            addressLine1: true,
+            addressLine2: true,
+            city: true,
+            state: true,
+            country: true,
+            deliveryNotes: true,
+          },
+        },
         product: {
           select: {
             id: true,

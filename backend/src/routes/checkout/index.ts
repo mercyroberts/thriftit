@@ -5,11 +5,22 @@ import { Prisma } from '@prisma/client'
 import prisma from '../../lib/prisma'
 import { authMiddleware } from '../../middleware/auth'
 
+const deliverySchema = z.object({
+  recipientName: z.string().min(1, 'Recipient name is required'),
+  phone: z.string().min(1, 'Delivery phone is required'),
+  addressLine1: z.string().min(1, 'Address line 1 is required'),
+  addressLine2: z.string().optional(),
+  city: z.string().min(1, 'City is required'),
+  state: z.string().min(1, 'State is required'),
+  country: z.string().min(1, 'Country is required'),
+  deliveryNotes: z.string().optional(),
+})
+
 const checkoutSchema = z.object({
   buyerName: z.string().min(1, 'Buyer name is required'),
   buyerEmail: z.string().email('Invalid email address'),
-  buyerPhone: z.string().optional(),
-  deliveryAddress: z.string().optional(),
+  buyerPhone: z.string().min(1, 'Buyer phone is required'),
+  delivery: deliverySchema,
 })
 
 export const checkoutRouter = Router()
@@ -29,11 +40,12 @@ checkoutRouter.post(
     }
 
     const { productId } = req.params
-    const { buyerName, buyerEmail, buyerPhone, deliveryAddress } = result.data
+    const { buyerName, buyerEmail, buyerPhone, delivery } = result.data
     const paystackRef = uuidv4()
 
     // Atomic lock: SELECT FOR UPDATE inside a transaction
     let product: { id: string; price: number; currency: string } | null = null
+    let transactionId: string | null = null
 
     try {
       await prisma.$transaction(async (tx) => {
@@ -69,7 +81,7 @@ checkoutRouter.post(
         })
 
         // Create pending transaction
-        await tx.transaction.create({
+        const transaction = await tx.transaction.create({
           data: {
             paystackRef,
             amount: product.price,
@@ -77,8 +89,17 @@ checkoutRouter.post(
             buyerName,
             buyerEmail,
             buyerPhone,
-            deliveryAddress,
             productId,
+          },
+        })
+
+        transactionId = transaction.id
+
+        // Create delivery details linked to transaction
+        await tx.deliveryDetails.create({
+          data: {
+            transactionId: transaction.id,
+            ...delivery,
           },
         })
       })
@@ -126,11 +147,14 @@ checkoutRouter.post(
 
       if (!paystackData.status || !paystackData.data) {
         // Paystack failed — roll back the reservation
+        await prisma.deliveryDetails.delete({
+          where: { transactionId: transactionId! },
+        })
+        await prisma.transaction.delete({ where: { paystackRef } })
         await prisma.product.update({
           where: { id: productId },
           data: { status: 'AVAILABLE', lockedAt: null, lockedBy: null },
         })
-        await prisma.transaction.delete({ where: { paystackRef } })
 
         res.status(502).json({
           error: paystackData.message || 'Payment initialization failed',
@@ -145,11 +169,14 @@ checkoutRouter.post(
       })
     } catch {
       // Network error calling Paystack — roll back
+      await prisma.deliveryDetails.delete({
+        where: { transactionId: transactionId! },
+      })
+      await prisma.transaction.delete({ where: { paystackRef } })
       await prisma.product.update({
         where: { id: productId },
         data: { status: 'AVAILABLE', lockedAt: null, lockedBy: null },
       })
-      await prisma.transaction.delete({ where: { paystackRef } })
 
       res.status(502).json({
         error: 'Could not reach payment provider',
