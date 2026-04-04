@@ -11,6 +11,10 @@ import { storeRouter } from './routes/stores'
 import { productRouter } from './routes/products'
 import { marketplaceRouter } from './routes/marketplace'
 import { uploadRouter } from './routes/upload'
+import { checkoutRouter } from './routes/checkout'
+import { webhookRouter } from './routes/webhooks'
+import { transactionRouter } from './routes/transactions'
+import { startLockExpiryJob } from './jobs/expireLocks'
 import prisma from './lib/prisma'
 
 const app = express()
@@ -45,6 +49,9 @@ app.use('/api/stores', storeRouter)
 app.use('/api/products', productRouter)
 app.use('/api/marketplace', marketplaceRouter)
 app.use('/api/upload', uploadRouter)
+app.use('/api/checkout', checkoutRouter)
+app.use('/api/webhooks', webhookRouter)
+app.use('/api/transactions', transactionRouter)
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err.stack)
@@ -53,6 +60,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
+  startLockExpiryJob()
 })
 
 export default app
