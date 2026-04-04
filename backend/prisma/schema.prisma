@@ -70,9 +70,24 @@ model Transaction {
   buyerEmail      String
   buyerName       String
   buyerPhone      String?
-  deliveryAddress String?
   productId       String            @unique
   product         Product           @relation(fields: [productId], references: [id])
+  deliveryDetails DeliveryDetails?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+}
+
+model DeliveryDetails {
+  id            String      @id @default(cuid())
+  transactionId String      @unique
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  recipientName String
+  phone         String
+  addressLine1  String
+  addressLine2  String?
+  city          String
+  state         String
+  country       String
+  deliveryNotes String?
+  createdAt     DateTime    @default(now())
 }

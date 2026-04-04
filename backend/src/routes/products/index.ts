@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
-import prisma from '../lib/prisma'
-import { authMiddleware } from '../middleware/auth'
+import prisma from '../../lib/prisma'
+import { authMiddleware } from '../../middleware/auth'
 
 const createProductSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
