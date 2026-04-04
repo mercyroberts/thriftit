@@ -1,11 +1,16 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
+import './types/express'
 import express, { Request, Response, NextFunction } from 'express'
 import cors from 'cors'
 import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
 import { authRouter } from './routes/auth'
+import { storeRouter } from './routes/stores'
+import { productRouter } from './routes/products'
+import { marketplaceRouter } from './routes/marketplace'
+import { uploadRouter } from './routes/upload'
 import prisma from './lib/prisma'
 
 const app = express()
@@ -36,6 +41,10 @@ app.get('/api/health', async (_req, res) => {
 })
 
 app.use('/api/auth', authLimiter, authRouter)
+app.use('/api/stores', storeRouter)
+app.use('/api/products', productRouter)
+app.use('/api/marketplace', marketplaceRouter)
+app.use('/api/upload', uploadRouter)
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err.stack)
